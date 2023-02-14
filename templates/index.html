@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>XBTZAR Moving Average</title>
+</head>
+<body class="bg-slate-900 text-slate-400 text-sm">
+
+<section class="py-5 w-full">
+    <div class="container p-6 mx-auto">
+        <div class="px-4 flex gap-x-1">
+            <div class="flex flex-col gap-y-1">
+                <div>{{ zar_bal }}</div>
+                <div>{{ xbt_bal }}</div>
+            </div>
+            <div class="{% if mode=='BUY'%}text-[#a8dadc]{% else %}text-[#9d0208]{% endif %}">
+                {% if mode=='BUY'%}&#8679;{% else %}&#8681;{% endif %}
+            </div>
+        </div>
+        <div class="px-4">
+            <div class="text-4xl font-extrabold text-right {% if mode=='BUY'%}text-[#a8dadc]{% else %}text-[#9d0208]{% endif %}">
+                {{ mode }}
+            </div>
+            <div class="text-right">Mode</div>
+        </div>
+    </div>
+</section>
+
+<section class="body-font">
+    <div class="container px-5 py-12 mx-auto relative">
+        <div class="max-w-sm p-6 border border-slate-800 rounded-lg shadow -mb-48">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight">XBTZAR</h5>
+            <p class="font-normal text-sm text-slate-600">
+                To trade using moving averages, analyze the relationship between short-term and long-term averages to
+                identify potential trades. Buy if short-term crosses above long-term, sell if short-term crosses below
+                long-term.
+            </p>
+            <ul class="list-disc p-4">
+                <li>
+                    <code class="text-[#457b9d]">Starting on {{ since }}</code>
+                </li>
+                <li>
+                    <code class="text-[#457b9d]">{{ duration }} duration in seconds</code>
+                </li>
+            </ul>
+        </div>
+        <div class="w-full">
+            <canvas id="high_low"></canvas>
+            <script>
+              const high_low = document.getElementById('high_low').getContext('2d');
+
+              new Chart(high_low, {
+                type: 'line',
+                data: {
+                  labels: {{ labels | safe }},
+                  datasets: [
+                      {
+                        label: 'Close',
+                        data: {{ values | safe }},
+                        borderColor: "#457b9d",
+                        pointRadius: 0
+                      },
+                      {
+                        label: 'EMA12',
+                        data: {{ ema12 | safe }},
+                        borderColor: "#a8dadc",
+                        pointRadius: 0
+                      },
+                      {
+                        label: 'EMA26',
+                        data: {{ ema26 | safe }},
+                        borderColor: "#9d0208",
+                        pointRadius: 0
+                      }
+                  ]
+                },
+                options: {
+                  responsive: true,
+                  scales: {
+                    x: { display: false },
+                    y: { display: false },
+                  },
+                  plugins: {
+                    legend: { display: false }
+                  },
+                  tooltips: {
+                    callbacks: {
+                        title: function(tooltipItem, data) {
+                          return data['labels'][tooltipItem[0]['index']];
+                        },
+                        label: function(tooltipItem, data) {
+                          return data['datasets'][0]['data'][tooltipItem['index']];
+                        }
+                    }
+                  }
+                }
+              });
+
+
+            </script>
+            <div class="flex flex-wrap gap-8 flex-row-reverse">
+                <div class="px-4">
+                    <p class="text-lg font-bold text-slate-600">Closing price</p>
+                    <p class="text-sm font-bold text-[#457b9d]">{{ closing_price }}</p>
+                </div>
+                <div class="px-4">
+                    <p class="text-lg font-bold text-slate-600">EMA12</p>
+                    <p class="text-sm font-bold text-[#a8dadc]">{{ ema12_price }}</p>
+                </div>
+                <div class="px-4">
+                    <p class="text-lg font-bold text-slate-600">EMA26</p>
+                    <p class="text-sm font-bold text-[#9d0208]">{{ ema26_price }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>
